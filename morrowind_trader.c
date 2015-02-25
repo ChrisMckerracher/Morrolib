@@ -25,7 +25,7 @@ void write_data(FILE * write_file, struct fdata data);
 struct fdata read_data(FILE * read_file, int size); 
 void find_keyword(char * readbuffer, unsigned char * string);
 void read_wrapper(FILE * read_file, FILE * write_file);
-
+string_in_string(struct fdata mainstring, struct fdata substring);
 //read_wrapper will be the wrapper for reading and writing to file
 //use unsigned char for file type
 
@@ -44,6 +44,46 @@ void read_wrapper(FILE * read_file, FILE * write_file);
 //so consider 2 buffers
 //total_buffer, with the past buffer and this buffer and
 //current_buffer, with the last read
+
+string_in_string(struct fdata mainstring, struct fdata substring){
+//consider if the string starts in the data, but mainstring ends, keep a buffer
+//and then finish that string
+//return NULL if string isnt found
+
+    int i = 0;
+    int k;
+
+    while(true){
+
+        for(int i; i < mainstring.size; i++){
+           
+            if(mainstring.data[i] == substring.data[0]){
+                break;
+            } 
+        }
+
+        k = i; 
+
+        for(int i = 0; i <  mainstring.size - k; i++){
+           
+            if(mainstring.data[k+i] == substring.data[i]){
+                if(!(i + 1 < substring.size)){
+                //got to last value, whole string was found!
+                }
+                continue;            
+            }
+            
+            if(mainstring.data[k+i] != substring.data[i]){
+                //the substring isnt in the string 
+                return NULL;
+            }
+        }
+
+        if(!(i < substring.size)){
+        //read data, assign to mainstring
+        }
+    }
+}
 
 void write_data(FILE * write_file, struct fdata data); 
     //attempts an fwrite. returns 0 if sucessfull, or 1 in
@@ -72,6 +112,3 @@ void copy_data(FILE * read_file, FILE * write_file, int num_bytes){
     
     write_data(write_file, data);   
 }
-
-
-
