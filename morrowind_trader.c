@@ -14,8 +14,15 @@
 //NPCO_item is the size of one item, ex ring_vampiric_unique
 //HEADER is just any preceeding header, like NPCO
 
-int copy_data(FILE * read_file, FILE * write_file, num_bytes);
-int write_data(FILE * write_file, unsigned char * bytes, int size);
+//file data
+struct fdata {
+    unsigned char * bytes;
+    int size; //size of unsigned char  
+}
+
+void copy_data(FILE * read_file, FILE * write_file, num_bytes);
+void write_data(FILE * write_file, struct fdata data);
+struct fdata read_data(FILE * read_file, int size); 
 void find_keyword(char * readbuffer, unsigned char * string);
 void read_wrapper(FILE * read_file, FILE * write_file);
 
@@ -38,26 +45,32 @@ void read_wrapper(FILE * read_file, FILE * write_file);
 //total_buffer, with the past buffer and this buffer and
 //current_buffer, with the last read
 
-int write_data(FILE * write_file, unsigned char * bytes, int size){
+void write_data(FILE * write_file, struct fdata data); 
     //attempts an fwrite. returns 0 if sucessfull, or 1 in
     //an event of a failure
     int success_checker;
-    success_checker = fwrite(bytes, 1, size, write_file);
+    success_checker = fwrite(data.bytes, 1, data.size, write_file);
 
-    if (success_checker != size){
+    if (success_checker != data.size){
     printf("something went wrong with writing to new save file");
-    return 1;
+    exit(1);
     }
-    
-    return 0;
-
 }
 
-int copy_data(FILE * read_file, FILE * write_file, num_bytes){
+struct fdata read_data(FILE * read_file, int size){
+    //consider shrinking data.data if size is smaller than expected
+    struct fdata data;
+    data.data = malloc(size);
+    data.size = fread(fdata.data, 1, size, read_file);
+
+    return data;
+}
+
+void copy_data(FILE * read_file, FILE * write_file, int num_bytes){
 //make use of the above write_data function
-
-
-
+    struct fdata data = read_data(read_file, num_bytes);
+    
+    write_data(write_file, data);   
 }
 
 
