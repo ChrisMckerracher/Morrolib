@@ -79,7 +79,8 @@ string_in_string(struct fdata mainstring, struct fdata substring){
             }
         }
 
-        if(!(i < substring.size)){
+        if(i + 1 < substring.size)){
+        //now if i + 1 < substring.size, we've never reached the end, and the data may exist here, so we need to read more data
         //read data, assign to mainstring
         }
     }
