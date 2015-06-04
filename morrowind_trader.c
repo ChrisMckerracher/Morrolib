@@ -75,6 +75,7 @@ string_in_string(struct fdata mainstring, struct fdata substring){
             
             if(mainstring.data[k+i] != substring.data[i]){
                 //the substring isnt in the string 
+                //potential issue: if start of data doesn't match string, then it will return NULL
                 return NULL;
             }
         }
