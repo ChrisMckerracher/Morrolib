@@ -29,21 +29,9 @@ int string_is_string(struct fdata filestring, struct fdata itemstring);
 //read_wrapper will be the wrapper for reading and writing to file
 //use unsigned char for file type
 
-//things to consider:
-//-i'll only need to concatenate the past read with current
-//as long as buffer is big enough
-//ex: buffer ends at NPC
-//next starts with 0
-//i concatenate it, and bam NPC0
-//-also, once NPC0 or whatever header im looking for is found
-//i should probably change read buffer size so i can properly search
-//for the next thing
-//-when concatenating and finding the string,
-//part of the next thing i read may have been in the second part
-//of the concatenation
-//so consider 2 buffers
-//total_buffer, with the past buffer and this buffer and
-//current_buffer, with the last read
+//remember to rename FILENAME
+
+//global variables
 
 int string_is_string(struct fdata filestring, struct fdata itemstring){
 //name subrecord should check the size, so check name sub record byte length
@@ -55,7 +43,9 @@ int string_is_string(struct fdata filestring, struct fdata itemstring){
         perror(string_is_string got called at different string lengths)
         exit(1);
     }
+    
     int i;
+    
     for(i=0; i < filestring.size; i++){
         if(filestring.data[i] != itemstring.data[i]){
             return 1;
@@ -65,11 +55,44 @@ int string_is_string(struct fdata filestring, struct fdata itemstring){
     return 0;
 }
 
-
-alogirthm{
+algorithm{
+    //returns size of record if it is an NPC_, else it just returns 0
+    
     //-read header string, determine if it's NPCO_item
     //-if it is, find subheader NAME, find it's subrecord data length
-    //-if this is equal to the itemstring's string length, compare with string_is_string
+    //-if this is equal to the itemstring's string length, compare with string_is_string 
+    
+    if(isNPC() == 0){
+        continue;
+    } else{
+        //determine if NPC_ is the player record
+        
+    }
+    
+}
+int ISNPC_(){
+   
+    struct fdata recordName = read_data(FILENAME, count_item);
+    struct fdata recordSize = read_data(FILENAME, count_item);
+    //save recordSize somewhere
+    
+    if string_is_string(recordNAME, NPC_NAME){
+        //if it's an NPC_ record
+        write_data(WriteName, recordName);
+        write_data(WriteName, recordName)
+        struct fdata headers = read_data(FILENAME, count_item * 2 ); //the remaining headers
+        write_data(WriteNAME, headers);
+        return SIZE_OF_RECORD;
+    } else{
+        write_data(WriteName, recordName);
+        struct fdata headers = read_data(FILENAME, count_item * 2); //remaining headers
+        //determine size of recordSize
+        write_data(WriteNAME, recordSize);
+        write_data(WriteName, headers);
+        struct fdata wrongrecord = read_data(FILENAME, SIZE_OF_RECORD_SIZE);
+        write_data(WriteName, wrongrecord);
+        return 0
+    }
 }
 
 void write_data(FILE * write_file, struct fdata data); 
@@ -79,9 +102,11 @@ void write_data(FILE * write_file, struct fdata data);
     success_checker = fwrite(data.bytes, 1, data.size, write_file);
 
     if (success_checker != data.size){
-    printf("something went wrong with writing to new save file");
+    perror("something went wrong with writing to new save file");
     exit(1);
     }
+    
+    free(data.data);
 }
 
 struct fdata read_data(FILE * read_file, int size){
