@@ -3,10 +3,10 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#define top_const 320
 #define count_item 4
 #define NPCO_item 32
-#define HEADER 8
+#define HEADER 16
+#define subHEADER 8
 
 //all headers are defined by byte size
 //top_const deals with bytes up to MAST
@@ -25,7 +25,7 @@ void write_data(FILE * write_file, struct fdata data);
 struct fdata read_data(FILE * read_file, int size); 
 void find_keyword(char * readbuffer, unsigned char * string);
 void read_wrapper(FILE * read_file, FILE * write_file);
-string_in_string(struct fdata mainstring, struct fdata substring);
+int string_is_string(struct fdata filestring, struct fdata itemstring);
 //read_wrapper will be the wrapper for reading and writing to file
 //use unsigned char for file type
 
@@ -45,46 +45,31 @@ string_in_string(struct fdata mainstring, struct fdata substring);
 //total_buffer, with the past buffer and this buffer and
 //current_buffer, with the last read
 
-string_in_string(struct fdata mainstring, struct fdata substring){
-//consider if the string starts in the data, but mainstring ends, keep a buffer
-//and then finish that string
-//return NULL if string isnt found
+int string_is_string(struct fdata filestring, struct fdata itemstring){
+//name subrecord should check the size, so check name sub record byte length
+//basically filestring.size should = itemstring.size for this function to be called
+//returns 1 for false, 0 for true
 
-    int i = 0;
-    int k;
-
-    while(true){
-
-        for(int i; i < mainstring.size; i++){
-           
-            if(mainstring.data[i] == substring.data[0]){
-                break;
-            } 
-        }
-
-        k = i; 
-
-        for(int i = 0; i <  mainstring.size - k; i++){
-           
-            if(mainstring.data[k+i] == substring.data[i]){
-                if(!(i + 1 < substring.size)){
-                //got to last value, whole string was found!
-                }
-                continue;            
-            }
-            
-            if(mainstring.data[k+i] != substring.data[i]){
-                //the substring isnt in the string 
-                //potential issue: if start of data doesn't match string, then it will return NULL
-                return NULL;
-            }
-        }
-
-        if(i + 1 < substring.size)){
-        //now if i + 1 < substring.size, we've never reached the end, and the data may exist here, so we need to read more data
-        //read data, assign to mainstring
-        }
+    if(filestring.size != itemstring.size){
+        //sanity check to make sure no weird errors occur
+        perror(string_is_string got called at different string lengths)
+        exit(1);
     }
+    int i;
+    for(i=0; i < filestring.size; i++){
+        if(filestring.data[i] != itemstring.data[i]){
+            return 1;
+        }   
+    }
+    
+    return 0;
+}
+
+
+alogirthm{
+    //-read header string, determine if it's NPCO_item
+    //-if it is, find subheader NAME, find it's subrecord data length
+    //-if this is equal to the itemstring's string length, compare with string_is_string
 }
 
 void write_data(FILE * write_file, struct fdata data); 
