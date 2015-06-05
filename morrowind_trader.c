@@ -114,7 +114,10 @@ struct fdata read_data(FILE * read_file, int size){
     struct fdata data;
     data.data = malloc(size);
     data.size = fread(fdata.data, 1, size, read_file);
-
+    
+    if(data.size != size){
+        //then we are eof
+    }
     return data;
 }
 
