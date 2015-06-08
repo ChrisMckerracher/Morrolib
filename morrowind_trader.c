@@ -78,6 +78,10 @@ algorithm{
     
 }
 
+isItem(int * recordsize){
+    //determine if they are the item
+    //if it's the item being looked for, swap items, and update recordsize
+}
 int isNPCO_(int * recordsize){
     struct fdata subrecordName = read_data(FILENAME, count_item);
     struct fdata subrecordSize = read_data(FILENAME, count_item);
