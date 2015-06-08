@@ -61,13 +61,34 @@ algorithm{
     //-read header string, determine if it's NPCO_item
     //-if it is, find subheader NAME, find it's subrecord data length
     //-if this is equal to the itemstring's string length, compare with string_is_string 
+    int record_size;
     
-    if(isNPC() == 0){
+    if((record_size = isNPC()) == 0){
         continue;
     } else{
         //determine if NPC_ is the player record
+        if (ISUSER(itemstring) == 0); //need to somehow pass remaining filesize
         
     }
+    
+}
+
+int ISUSER_(struct fdata itemstring){
+    //should only be called if ISNPC_ is true
+    struct fdata subrecordName = read_data(FILENAME, count_item); //this should always be NAME, as always NPC_ record
+    struct fdata subrecordSize = read_data(FILENAME, count_item);
+    //determine what the size is from the little endian 4 byte number, which is SIZEOFSIZE
+    struct fdata subrecordData= read_data(FILENAME, SIZEOFSIZE);
+    
+    write_data(subrecordName);
+    write_data(subrecordSize); //save size somewhere 
+    
+    if string_is_string(subrecordData, USERSTRING) //player
+        write_data(subrecordData);
+        return 0; //success
+    else
+        write_data(subrecordData);
+        return 1; //failure 
     
 }
 int ISNPC_(){
@@ -89,7 +110,7 @@ int ISNPC_(){
         //determine size of recordSize
         write_data(WriteNAME, recordSize);
         write_data(WriteName, headers);
-        struct fdata wrongrecord = read_data(FILENAME, SIZE_OF_RECORD_SIZE);
+        struct fdata wrongrecord = read_data(FILENAME, SIZE_OF_RECORD_SIZE); //writes whole record 
         write_data(WriteName, wrongrecord);
         return 0
     }
