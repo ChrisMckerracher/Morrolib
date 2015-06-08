@@ -18,7 +18,7 @@
 struct fdata {
     unsigned char * bytes;
     int size; //size of unsigned char  
-}
+};
 
 void copy_data(FILE * read_file, FILE * write_file, num_bytes);
 void write_data(FILE * write_file, struct fdata data);
@@ -68,8 +68,30 @@ algorithm{
     } else{
         //determine if NPC_ is the player record
         while(record_size != 0){
-            if (ISUSER(itemstring, &record_size) == 0); //need to somehow pass remaining filesize
+            if (ISUSER(itemstring, &record_size) == 0){
+                if(isNPCO_(int * recordsize)){
+                    isItem(int * recordsize);
+                }
+            } //need to somehow pass remaining filesize
         }
+    }
+    
+}
+
+int isNPCO_(int * recordsize){
+    struct fdata subrecordName = read_data(FILENAME, count_item);
+    struct fdata subrecordSize = read_data(FILENAME, count_item);
+    struct fdata subrecordDATA = read_data(FILENAME, SIZEOFSIZE);
+    
+    write_data(subrecordNAME);
+    write_data(subrecordSize); //save size somewhere
+    
+    if string_is_string(subrecordDATA, NPCSTRING){
+        write_data(subrecordData);
+        return 0;
+    } else{
+        write_data(subrecordDATA);
+        return 1;
     }
     
 }
@@ -84,9 +106,10 @@ int ISUSER_(struct fdata itemstring, int * recordsize){
     write_data(subrecordName);
     write_data(subrecordSize); //save size somewhere 
     
-    if string_is_string(subrecordData, USERSTRING) //player
+    if string_is_string(subrecordData, USERSTRING){ //player
         write_data(subrecordData);
         return 0; //success
+    }
     else
         write_data(subrecordData);
         return 1; //failure 
