@@ -67,13 +67,14 @@ algorithm{
         continue;
     } else{
         //determine if NPC_ is the player record
-        if (ISUSER(itemstring) == 0); //need to somehow pass remaining filesize
-        
+        while(record_size != 0){
+            if (ISUSER(itemstring, &record_size) == 0); //need to somehow pass remaining filesize
+        }
     }
     
 }
 
-int ISUSER_(struct fdata itemstring){
+int ISUSER_(struct fdata itemstring, int * recordsize){
     //should only be called if ISNPC_ is true
     struct fdata subrecordName = read_data(FILENAME, count_item); //this should always be NAME, as always NPC_ record
     struct fdata subrecordSize = read_data(FILENAME, count_item);
@@ -89,8 +90,9 @@ int ISUSER_(struct fdata itemstring){
     else
         write_data(subrecordData);
         return 1; //failure 
-    
+    //subtract recordsize, and return it as well
 }
+
 int ISNPC_(){
    
     struct fdata recordName = read_data(FILENAME, count_item);
