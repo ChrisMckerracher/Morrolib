@@ -28,8 +28,10 @@ struct recordheaders{
     unsigned char[8] misc; //other 2 headers, misc headers.
     srh * subrecords; //linked list
     srh * last; //end of linked list
+    srh * object_location; //more on comment underneith
 } rhead; //record header
-
+//if yorue adding a new object, if the object exists, you need to just update it, rather than adding an entirely new record
+//so while traversing it's easier to just keep this in mind, so you can access and change it if need be
 typedef 
 struct subrecordheaders{
     //linked list implementation
