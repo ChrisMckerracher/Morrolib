@@ -15,17 +15,19 @@
 //HEADER is just any preceeding header, like NPCO
 
 //file data
+typedef
 struct fdata {
     unsigned char * bytes;
     int size; //size of unsigned char  
-};
+} fdata;
 
 typedef 
 struct recordheaders{
     unsigned char[4] name; //record name, ex NPC_
-    unsigned char[4] size; //record size 
+    unsigned char[4] size; //record size
     unsigned char[8] misc; //other 2 headers, misc headers.
     srh * subrecords; //linked list
+    srh * last; //end of linked list
 } rhead; //record header
 
 typedef 
@@ -36,6 +38,11 @@ struct subrecordheaders{
     unsigned char * data; // need to keep track of data
     sr * next; //next item in subrecord linked list
 } srh; //subrecord
+
+char NPCOSTRING[4] = {'N','P','C','O'};
+char NAMESTRING[4] = {'N', 'A', 'M', 'E'};
+char PLAYERSTRING[x] = {};
+char NPCSTRING[4] = {'N','P','C','_'};
 
 //for NPCO items, the body is 36 bits. the first 4 is the item count, the remaining 32 is string name
 
@@ -52,52 +59,6 @@ int string_is_string(struct fdata filestring, struct fdata itemstring);
 
 //global variables
 
-algorithm{
-    //returns size of record if it is an NPC_, else it just returns 0
-    
-    //-read header string, determine if it's NPCO_item
-    //-if it is, find subheader NAME, find it's subrecord data length
-    //-if this is equal to the itemstring's string length, compare with string_is_string 
-    int record_size;
-    int subrecord_size;
-    
-    if((record_size = isNPC()) == 0){
-        continue;
-    } else{
-        //determine if NPC_ is the player record
-        while(record_size != 0){
-            if (ISUSER(itemstring, &record_size) == 0){
-                if(isNPCO_(&recordsize, &subrecord_size)){
-                    isItem(&recordsize, &subrecord_size);
-                }
-            } //need to somehow pass remaining filesize
-        }
-    }
-    
-}
-
-int string_is_string(char * filestring, int size, struct fdata itemstring){
-//name subrecord should check the size, so check name sub record byte length
-//basically filestring.size should = itemstring.size for this function to be called
-//returns 1 for false, 0 for true
-//size is size of filestring
-
-    if(size != itemstring.size){
-        //sanity check to make sure no weird errors occur
-        perror(string_is_string got called at different string lengths)
-        exit(1);
-    }
-    
-    int i;
-    
-    for(i=0; i < size; i++){
-        if(filestring[i] != itemstring.data[i]){
-            return 1;
-        }   
-    }
-    
-    return 0;
-}
 
 isItem(int * recordsize, int * subrecord_size){
     //determine if they are the item
@@ -108,69 +69,150 @@ isItem(int * recordsize, int * subrecord_size){
 
 swapItem(int)
 
-int isNPCO_(int * recordsize){
-    struct fdata subrecordName = read_data(FILENAME, count_item);
-    struct fdata subrecordSize = read_data(FILENAME, count_item);
-    struct fdata subrecordDATA = read_data(FILENAME, SIZEOFSIZE);
+
+
+
+algorithm{
+    //returns size of record if it is an NPC_, else it just returns 0
     
-    write_data(subrecordNAME);
-    write_data(subrecordSize); //save size somewhere
+    //-read header string, determine if it's NPCO_item
+    //-if it is, find subheader NAME, find it's subrecord data length
+    //-if this is equal to the itemstring's string length, compare with string_is_string 
+    int remaining_size;
+    rhead record = record_builer();
+    remaining_size = ...;
     
-    if string_is_string(subrecordDATA, NPCSTRING){
-        write_data(subrecordData);
-        return 0;
+    if(isr(record.name, NPCSTRING) == 1){
+        //not right header type
+        rkiller(record);
     } else{
-        write_data(subrecordDATA);
+        //determine if NPC_ is the player record
+        while(subrecord_builder(record) == 0){
+            if (string_in_string(record.name, 4, playerstring) == 0){
+                if(issr(record->last->name, NPCOSTRING) == 0){
+                    //determine if item
+                }
+            } //need to somehow pass remaining filesize
+        //either if statement failing means this subrecord isn't right 
+            
+        }
+    }
+    
+}
+
+rhead record_builder(){
+    //builds record header type
+    
+    rhead record;
+    
+    read_header(read_file, record.name, 4);
+    read_header(read_file, record.size, 4);
+    read_header(read_file, record.misc, 8);
+    record.subrecords = NULL;
+    record.last = NULL;
+    
+    return record;
+}
+
+int subrecord_builder(rhead * record, int * remsize){
+    //1 means that the record cannot be bigger
+    //remsize is remaining size before record is empty
+    if(remsize == 0){
         return 1;
     }
-    
-}
 
-int ISUSER_(struct fdata itemstring, int * recordsize){
-    //should only be called if ISNPC_ is true
-    struct fdata subrecordName = read_data(FILENAME, count_item); //this should always be NAME, as always NPC_ record
-    struct fdata subrecordSize = read_data(FILENAME, count_item);
-    //determine what the size is from the little endian 4 byte number, which is SIZEOFSIZE
-    struct fdata subrecordData= read_data(FILENAME, SIZEOFSIZE);
-    
-    write_data(subrecordName);
-    write_data(subrecordSize); //save size somewhere 
-    
-    if string_is_string(subrecordData, USERSTRING){ //player
-        write_data(subrecordData);
-        return 0; //success
-    }
-    else
-        write_data(subrecordData);
-        return 1; //failure 
-    //subtract recordsize, and return it as well
-}
-
-int ISNPC_(){
-   
-    struct fdata recordName = read_data(FILENAME, count_item);
-    struct fdata recordSize = read_data(FILENAME, count_item);
-    //save recordSize somewhere
-    
-    if string_is_string(recordNAME, NPC_NAME){
-        //if it's an NPC_ record
-        write_data(WriteName, recordName);
-        write_data(WriteName, recordName)
-        struct fdata headers = read_data(FILENAME, count_item * 2 ); //the remaining headers
-        write_data(WriteNAME, headers);
-        return SIZE_OF_RECORD;
+    if(record->subrecords == NULL){
+        record->subrecords = malloc(sizeof(srh));
+        record->last = record->subrecords;
     } else{
-        write_data(WriteName, recordName);
-        struct fdata headers = read_data(FILENAME, count_item * 2); //remaining headers
-        //determine size of recordSize
-        write_data(WriteNAME, recordSize);
-        write_data(WriteName, headers);
-        struct fdata wrongrecord = read_data(FILENAME, SIZE_OF_RECORD_SIZE); //writes whole record 
-        write_data(WriteName, wrongrecord);
-        return 0
+        record->last->next = malloc(sizeof(srh));
+        record->last = record->last->next;
+        record->last->next = NULL;
+    }
+    read_header(read_file, record->last->name, 4);
+    read_header(read_file, record->last->size, 4);
+    read_data(read_file, record->last->data, SIZEEE);
+    
+    *remsize -= SIZEEE + 8;
+    
+    return 0;
+}
+
+rkiller(rhead* record, remsize){
+    //writes record
+    write_header(write_file, record->name, 4);
+    write_header(write_file, record->name, 4);
+    write_header(write_file, record->name, 8);
+    srkiller(record);
+    
+    if(remsize != 0){
+        //we'll just read and write the rest of the record as a big block;
+        char * bigblock = malloc(remsize);
+        read_data(read_file, bigblock, remsize);
+        write_data(write_file, bigblock, remsize);
+        free(bigblock);
     }
 }
 
+srkiller(rhead * record){
+    //writes all subrecords that have been read
+    srh * next;
+    
+    if(record->subrecord->last == NULL){
+        //we're done;
+    }
+    
+    while(record->subrecord != record->last){
+        next = record->subrecord->next;
+        write_header(write_file, record->subrecord->name, 4);
+        write_header(write_file, record->subrecord->size, 4);
+        write_data(write_file, record->subrecord->data, SIZE);
+        free(record->subrecord);
+        record->subrecord = next;
+    }
+    
+    free(record->last);
+    record->last = NULL;
+    record->subrecord = NULL;
+}
+
+int string_is_string(char * filestring, int size, fdata * itemstring){
+//name subrecord should check the size, so check name sub record byte length
+//basically filestring's size should = itemstring.size for this function to be called
+//returns 1 for false, 0 for true
+//size is size of filestring
+
+    if(size != itemstring->size){
+        //sanity check to make sure no weird errors occur
+        perror(string_is_string got called at different string lengths)
+        exit(1);
+    }
+    
+    int i;
+    
+    for(i=0; i < size; i++){
+        if(filestring[i] != itemstring->data[i]){
+            return 1;
+        }   
+    }
+    
+    return 0;
+}
+
+int isr(char * nam, fdata * rnam){
+    //is record
+    //same naming convention is issr, rnam is record name
+    
+    return string_is_string(name, 4, rnam);
+}
+
+int issr(char * nam, fdata * srnam){
+    //is subrecord
+    //nam is the subrecord type's name
+    //srnam is the name youre seeing if your sr record has
+    
+    return string_is_string(name, 4, srnam)
+}
 
 void write_header(FILE * write_file, char * data, int size){
     write_stuff(write_file, data, size);
@@ -191,13 +233,12 @@ void write_stuff(FILE * write_file, char * data, int size){
     }
 }
 
-void read_headers(FILE * read_file, char * data, int size){
+void read_header(FILE * read_file, char * data, int size){
     //since it's an array, it's already mallocd
     read_stuf(read_file, data, size);
 }
 
 void read_data(FILE * read_file, char * data, int size){
-    //consider shrinking data.data if size is smaller than expected
     data = malloc(size);
     read_stuff(read_file, data, size);
 }
