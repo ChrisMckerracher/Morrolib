@@ -37,6 +37,8 @@ struct subrecordheaders{
     sr * next; //next item in subrecord linked list
 } srh; //subrecord
 
+//for NPCO items, the body is 36 bits. the first 4 is the item count, the remaining 32 is string name
+
 void copy_data(FILE * read_file, FILE * write_file, num_bytes);
 void write_data(FILE * write_file, struct fdata data);
 struct fdata read_data(FILE * read_file, int size); 
@@ -49,28 +51,6 @@ int string_is_string(struct fdata filestring, struct fdata itemstring);
 //remember to rename FILENAME
 
 //global variables
-
-int string_is_string(struct fdata filestring, struct fdata itemstring){
-//name subrecord should check the size, so check name sub record byte length
-//basically filestring.size should = itemstring.size for this function to be called
-//returns 1 for false, 0 for true
-
-    if(filestring.size != itemstring.size){
-        //sanity check to make sure no weird errors occur
-        perror(string_is_string got called at different string lengths)
-        exit(1);
-    }
-    
-    int i;
-    
-    for(i=0; i < filestring.size; i++){
-        if(filestring.data[i] != itemstring.data[i]){
-            return 1;
-        }   
-    }
-    
-    return 0;
-}
 
 algorithm{
     //returns size of record if it is an NPC_, else it just returns 0
@@ -94,6 +74,29 @@ algorithm{
         }
     }
     
+}
+
+int string_is_string(char * filestring, int size, struct fdata itemstring){
+//name subrecord should check the size, so check name sub record byte length
+//basically filestring.size should = itemstring.size for this function to be called
+//returns 1 for false, 0 for true
+//size is size of filestring
+
+    if(size != itemstring.size){
+        //sanity check to make sure no weird errors occur
+        perror(string_is_string got called at different string lengths)
+        exit(1);
+    }
+    
+    int i;
+    
+    for(i=0; i < size; i++){
+        if(filestring[i] != itemstring.data[i]){
+            return 1;
+        }   
+    }
+    
+    return 0;
 }
 
 isItem(int * recordsize, int * subrecord_size){
@@ -168,35 +171,43 @@ int ISNPC_(){
     }
 }
 
-void write_data(FILE * write_file, struct fdata data); 
-    //attempts an fwrite. returns 0 if sucessfull, or 1 in
-    //an event of a failure
-    int success_checker;
-    success_checker = fwrite(data.bytes, 1, data.size, write_file);
 
-    if (success_checker != data.size){
-    perror("something went wrong with writing to new save file");
-    exit(1);
-    }
-    
-    free(data.data);
+void write_header(FILE * write_file, char * data, int size){
+    write_stuff(write_file, data, size);
 }
 
-struct fdata read_data(FILE * read_file, int size){
+void write_data(FILE * write_file, char * data, int size); 
+    write_stuff(write_file, data, size);
+    
+    free(data);
+}
+
+void write_stuff(FILE * write_file, char * data, int size){
+    int success_checker = fwrite(data, 1, size, write_file);
+    
+    if (success_checker != size){
+        perror("something went wrong with writing to new save file");
+        exit(1);
+    }
+}
+
+void read_headers(FILE * read_file, char * data, int size){
+    //since it's an array, it's already mallocd
+    read_stuf(read_file, data, size);
+}
+
+void read_data(FILE * read_file, char * data, int size){
     //consider shrinking data.data if size is smaller than expected
-    struct fdata data;
-    data.data = malloc(size);
-    data.size = fread(fdata.data, 1, size, read_file);
+    data = malloc(size);
+    read_stuff(read_file, data, size);
+}
+
+void read_stuff(FILE * read_file, char * stuff, int size){
+    int read_size;
+    
+    read_size = fread(stuff, 1, size, read_file);
     
     if(data.size != size){
-        //then we are eof
+        //do stuff
     }
-    return data;
-}
-
-void copy_data(FILE * read_file, FILE * write_file, int num_bytes){
-//make use of the above write_data function
-    struct fdata data = read_data(read_file, num_bytes);
-    
-    write_data(write_file, data);   
 }
