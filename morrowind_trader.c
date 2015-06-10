@@ -20,6 +20,23 @@ struct fdata {
     int size; //size of unsigned char  
 };
 
+typedef 
+struct recordheaders{
+    unsigned char[4] name; //record name, ex NPC_
+    unsigned char[4] size; //record size 
+    unsigned char[8] misc; //other 2 headers, misc headers.
+    srh * subrecords; //linked list
+} rhead; //record header
+
+typedef 
+struct subrecordheaders{
+    //linked list implementation
+    unsigned char[4] name;
+    unsigned char[4] size;
+    unsigned char * data; // need to keep track of data
+    sr * next; //next item in subrecord linked list
+} srh; //subrecord
+
 void copy_data(FILE * read_file, FILE * write_file, num_bytes);
 void write_data(FILE * write_file, struct fdata data);
 struct fdata read_data(FILE * read_file, int size); 
@@ -62,6 +79,7 @@ algorithm{
     //-if it is, find subheader NAME, find it's subrecord data length
     //-if this is equal to the itemstring's string length, compare with string_is_string 
     int record_size;
+    int subrecord_size;
     
     if((record_size = isNPC()) == 0){
         continue;
@@ -69,8 +87,8 @@ algorithm{
         //determine if NPC_ is the player record
         while(record_size != 0){
             if (ISUSER(itemstring, &record_size) == 0){
-                if(isNPCO_(int * recordsize)){
-                    isItem(int * recordsize);
+                if(isNPCO_(&recordsize, &subrecord_size)){
+                    isItem(&recordsize, &subrecord_size);
                 }
             } //need to somehow pass remaining filesize
         }
@@ -78,10 +96,15 @@ algorithm{
     
 }
 
-isItem(int * recordsize){
+isItem(int * recordsize, int * subrecord_size){
     //determine if they are the item
     //if it's the item being looked for, swap items, and update recordsize
+    
+    
 }
+
+swapItem(int)
+
 int isNPCO_(int * recordsize){
     struct fdata subrecordName = read_data(FILENAME, count_item);
     struct fdata subrecordSize = read_data(FILENAME, count_item);
