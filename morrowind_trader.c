@@ -17,7 +17,7 @@
 //file data
 typedef
 struct fdata {
-    unsigned char * bytes;
+    unsigned char * data;
     int size; //size of unsigned char  
 } fdata;
 
@@ -28,10 +28,11 @@ struct recordheaders{
     unsigned char[8] misc; //other 2 headers, misc headers.
     srh * subrecords; //linked list
     srh * last; //end of linked list
-    srh * object_location; //more on comment underneith
+    srh * obloc; //object location more on comment underneith
 } rhead; //record header
 //if yorue adding a new object, if the object exists, you need to just update it, rather than adding an entirely new record
 //so while traversing it's easier to just keep this in mind, so you can access and change it if need be
+
 typedef 
 struct subrecordheaders{
     //linked list implementation
@@ -62,14 +63,6 @@ int string_is_string(struct fdata filestring, struct fdata itemstring);
 //global variables
 
 
-isItem(int * recordsize, int * subrecord_size){
-    //determine if they are the item
-    //if it's the item being looked for, swap items, and update recordsize
-    
-    
-}
-
-swapItem(int)
 
 
 
@@ -99,8 +92,50 @@ algorithm{
             
         }
     }
-    
 }
+
+void remsrh(srh * subrecord){
+    //removes subrecord from record, updates size
+    //remaining size shouldnt change since this would be an already read record
+    srh * deadrecord = subrecord;
+    subrecord = subrecord->next;
+    free(deadrecord->data);
+    free(deadrecord);
+}
+
+
+int isItem(srh * subrecord, fdata string){
+    //determine if they are the item
+    //if it's the item being looked for, swap items, and update recordsize
+    int i;
+    
+    if(string.size != 32){
+        perror("incorrectly formatted string");
+        exit(1);
+    }
+    for(i=4; i < 36; i++){
+        if(subrecord->data[i] != string.data[i-4])
+            return 1; //not same item
+    }
+    
+    return 0; //same item
+}
+
+void swapItem(srh * subrecord, fdata string){
+    //string is the inputted item to switch
+    
+    int i;
+    
+    if(string.size != 32){
+        perror("incorrectly formatted string");
+        exit(1);
+    }
+    
+    for(i=4; i < 36; i++){
+        subrecord->data[i] = string.data[i-4];
+    }
+}
+
 
 rhead record_builder(){
     //builds record header type
@@ -176,6 +211,7 @@ srkiller(rhead * record){
     free(record->last);
     record->last = NULL;
     record->subrecord = NULL;
+    record->obloc = NULL;
 }
 
 int string_is_string(char * filestring, int size, fdata * itemstring){
