@@ -71,7 +71,7 @@ void swapItem(srh * subrecord, fdata string){
 }
 
 
-rhead record_builder(){
+rhead record_builder(FILE * read_file){
     //builds record header type
     
     rhead record;
@@ -86,7 +86,7 @@ rhead record_builder(){
     return record;
 }
 
-int subrecord_builder(rhead * record, int * remsize){
+int subrecord_builder(rhead * record, int * remsize, FILE * read_file){
     //1 means that the record cannot be bigger
     //remsize is remaining size before record is empty
     if(remsize == 0){
@@ -110,7 +110,7 @@ int subrecord_builder(rhead * record, int * remsize){
     return 0;
 }
 
-void rkiller(rhead* record, remsize){
+void rkiller(rhead* record, remsize, FILE * read_file, FILE * write_file){
     //writes record
     write_header(write_file, record->name, 4);
     write_header(write_file, record->name, 4);
@@ -126,7 +126,7 @@ void rkiller(rhead* record, remsize){
     }
 }
 
-void srkiller(rhead * record){
+void srkiller(rhead * record, FILE * write_file){
     //writes all subrecords that have been read
     srh * next;
     
@@ -221,7 +221,9 @@ void read_stuff(FILE * read_file, char * stuff, int size){
     
     read_size = fread(stuff, 1, size, read_file);
     
-    if(data.size != size){
-        //do stuff
+    if(read_size != size){
+        if (read_size != 0){
+            perror("read error on read_stuff");
+        }
     }
 }
