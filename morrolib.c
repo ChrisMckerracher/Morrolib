@@ -1,8 +1,8 @@
 #include "morrowh.h"
 
 //function prototypes
-void read_stuff(FILE * read_file, char * stuff, int size);
-void write_stuff(FILE * write_file, char * data, int size);
+static void read_stuff(FILE * read_file, char * stuff, int size);
+static void write_stuff(FILE * write_file, char * data, int size);
 
 //function definitions
 void remsrh(srh * subrecord, rhead * record){
