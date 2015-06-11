@@ -1,52 +1,10 @@
 #include "morrowh.h"
 
-//for NPCO items, the body is 36 bits. the first 4 is the item count, the remaining 32 is string name
+//function prototypes
+void read_stuff(FILE * read_file, char * stuff, int size);
+void write_stuff(FILE * write_file, char * data, int size);
 
-void copy_data(FILE * read_file, FILE * write_file, num_bytes);
-void write_data(FILE * write_file, struct fdata data);
-struct fdata read_data(FILE * read_file, int size); 
-void find_keyword(char * readbuffer, unsigned char * string);
-void read_wrapper(FILE * read_file, FILE * write_file);
-int string_is_string(struct fdata filestring, struct fdata itemstring);
-//read_wrapper will be the wrapper for reading and writing to file
-//use unsigned char for file type
-
-//remember to rename FILENAME
-
-//global variables
-
-
-
-
-
-
-algorithm{
-    //returns size of record if it is an NPC_, else it just returns 0
-    
-    //-read header string, determine if it's NPCO_item
-    //-if it is, find subheader NAME, find it's subrecord data length
-    //-if this is equal to the itemstring's string length, compare with string_is_string 
-    int remaining_size;
-    rhead record = record_builer();
-    remaining_size = ...;
-    
-    if(isr(record.name, NPCSTRING) == 1){
-        //not right header type
-        rkiller(record);
-    } else{
-        //determine if NPC_ is the player record
-        while(subrecord_builder(record) == 0){
-            if (string_in_string(record.name, 4, playerstring) == 0){
-                if(issr(record->last->name, NPCOSTRING) == 0){
-                    //determine if item
-                }
-            } //need to somehow pass remaining filesize
-        //either if statement failing means this subrecord isn't right 
-            
-        }
-    }
-}
-
+//function definitions
 void remsrh(srh * subrecord, rhead * record){
     //removes subrecord from record, updates record size
     //remaining size shouldnt change since this would be an already read record
