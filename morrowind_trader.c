@@ -94,15 +94,38 @@ algorithm{
     }
 }
 
-void remsrh(srh * subrecord){
-    //removes subrecord from record, updates size
+void remsrh(srh * subrecord, rhead * record){
+    //removes subrecord from record, updates record size
     //remaining size shouldnt change since this would be an already read record
     srh * deadrecord = subrecord;
+    int size = deadrecord->size;
     subrecord = subrecord->next;
     free(deadrecord->data);
     free(deadrecord);
+    record->size -= size;
+    
 }
 
+void addsrh(char * name, char * size, char * data, rhead * record){
+    //adds srh, updates record size
+    
+    srh * new_subr = malloc(sizeof(srh));
+    new_subr->name = name;
+    new_subr->size = size;
+    new_subr->data = data;
+    
+    if(record->subrecords = NULL){
+        record->subrecords = new_subr;
+        record->last = new_subr;
+    }else{
+        record->last->next = new_subr;
+        record->last = record->last->next;
+    }
+    
+    record->last->next = NULL;
+    
+    rhead->size += size;
+}
 
 int isItem(srh * subrecord, fdata string){
     //determine if they are the item
@@ -164,11 +187,11 @@ int subrecord_builder(rhead * record, int * remsize){
     } else{
         record->last->next = malloc(sizeof(srh));
         record->last = record->last->next;
-        record->last->next = NULL;
     }
     read_header(read_file, record->last->name, 4);
     read_header(read_file, record->last->size, 4);
     read_data(read_file, record->last->data, SIZEEE);
+    record->last->next = NULL;
     
     *remsize -= SIZEEE + 8;
     
