@@ -8,25 +8,6 @@
 #define HEADER 16
 #define subHEADER 8
 
-//prototypes
-void remsrh(srh * subrecord, rhead * record);
-void addsrh(char * name, char * size, char * data, rhead * record);
-int isItem(srh * subrecord, fdata string);
-void swapItem(srh * subrecord, fdata string);
-void rhead record_builder();
-int subrecord_builder(rhead * record, int * remsize);
-void rkiller(rhead* record, remsize);
-void srkiller(rhead * record);
-int string_is_string(char * filestring, int size, fdata * itemstring);
-int isr(char * nam, fdata * rnam);
-int issr(char * nam, fdata * srnam);
-void write_header(FILE * write_file, char * data, int size);
-void write_data(FILE * write_file, char * data, int size);
-void write_stuff(FILE * write_file, char * data, int size);
-void read_header(FILE * read_file, char * data, int size);
-void read_data(FILE * read_file, char * data, int size);
-void read_stuff(FILE * read_file, char * stuff, int size);
-
 //type definitions
 typedef
 struct fdata {
@@ -54,6 +35,26 @@ struct subrecordheaders{
     unsigned char * data; // need to keep track of data
     sr * next; //next item in subrecord linked list
 } srh; //subrecord
+
+//prototypes
+void remsrh(srh * subrecord, rhead * record);
+void addsrh(char * name, char * size, char * data, rhead * record);
+int isItem(srh * subrecord, fdata string);
+void swapItem(srh * subrecord, fdata string);
+rhead record_builder(FILE * read_file);
+int subrecord_builder(rhead * record, int * remsize, FILE * read_file);
+void rkiller(rhead* record, remsize, FILE * read_file, FILE * write_file);
+void srkiller(rhead * record, FILE * write_file);
+int string_is_string(char * filestring, int size, fdata * itemstring);
+int isr(char * nam, fdata * rnam);
+int issr(char * nam, fdata * srnam);
+void write_header(FILE * write_file, char * data, int size);
+void write_data(FILE * write_file, char * data, int size);
+void write_stuff(FILE * write_file, char * data, int size);
+void read_header(FILE * read_file, char * data, int size);
+void read_data(FILE * read_file, char * data, int size);
+void read_stuff(FILE * read_file, char * stuff, int size);
+
 
 extern char NPCOSTRING[4] = {'N','P','C','O'};
 extern char NAMESTRING[4] = {'N', 'A', 'M', 'E'};
