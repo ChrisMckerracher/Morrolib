@@ -81,6 +81,7 @@ rhead record_builder(){
     read_header(read_file, record.misc, 8);
     record.subrecords = NULL;
     record.last = NULL;
+    record.obloc = NULL;
     
     return record;
 }
@@ -109,7 +110,7 @@ int subrecord_builder(rhead * record, int * remsize){
     return 0;
 }
 
-rkiller(rhead* record, remsize){
+void rkiller(rhead* record, remsize){
     //writes record
     write_header(write_file, record->name, 4);
     write_header(write_file, record->name, 4);
@@ -125,7 +126,7 @@ rkiller(rhead* record, remsize){
     }
 }
 
-srkiller(rhead * record){
+void srkiller(rhead * record){
     //writes all subrecords that have been read
     srh * next;
     
