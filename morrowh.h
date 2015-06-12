@@ -17,9 +17,9 @@ struct fdata {
 
 typedef 
 struct recordheaders{
-    unsigned char[4] name; //record name, ex NPC_
+    unsigned char name[4] ; //record name, ex NPC_
     int size; //record size
-    unsigned char[8] misc; //other 2 headers, misc headers.
+    unsigned char misc[8] ; //other 2 headers, misc headers.
     srh * subrecords; //linked list
     srh * last; //end of linked list
     srh * obloc; //object location more on comment underneith
@@ -30,7 +30,7 @@ struct recordheaders{
 typedef 
 struct subrecordheaders{
     //linked list implementation
-    unsigned char[4] name;
+    unsigned char name[4] ;
     int size;
     unsigned char * data; // need to keep track of data
     sr * next; //next item in subrecord linked list
