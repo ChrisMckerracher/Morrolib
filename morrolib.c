@@ -187,17 +187,17 @@ int issr(char * nam, fdata * srnam){
     return string_is_string(name, 4, srnam)
 }
 
-void write_header(FILE * write_file, char * data, int size){
+void write_header(FILE * write_file, void * data, int size){
     write_stuff(write_file, data, size);
 }
 
-void write_data(FILE * write_file, char * data, int size); 
+void write_data(FILE * write_file, void * data, int size); 
     write_stuff(write_file, data, size);
     
     free(data);
 }
 
-void write_stuff(FILE * write_file, char * data, int size){
+void write_stuff(FILE * write_file, void * data, int size){
     int success_checker = fwrite(data, 1, size, write_file);
     
     if (success_checker != size){
@@ -206,17 +206,17 @@ void write_stuff(FILE * write_file, char * data, int size){
     }
 }
 
-void read_header(FILE * read_file, char * data, int size){
+void read_header(FILE * read_file, void * data, int size){
     //since it's an array, it's already mallocd
     read_stuf(read_file, data, size);
 }
 
-void read_data(FILE * read_file, char * data, int size){
+void read_data(FILE * read_file, void * data, int size){
     data = malloc(size);
     read_stuff(read_file, data, size);
 }
 
-void read_stuff(FILE * read_file, char * stuff, int size){
+void read_stuff(FILE * read_file, void * stuff, int size){
     int read_size;
     
     read_size = fread(stuff, 1, size, read_file);
