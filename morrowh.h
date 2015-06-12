@@ -48,15 +48,15 @@ void srkiller(rhead * record, FILE * write_file);
 int string_is_string(char * filestring, int size, fdata * itemstring);
 int isr(char * nam, fdata * rnam);
 int issr(char * nam, fdata * srnam);
-void write_header(FILE * write_file, char * data, int size);
-void write_data(FILE * write_file, char * data, int size);
-void write_stuff(FILE * write_file, char * data, int size);
-void read_header(FILE * read_file, char * data, int size);
-void read_data(FILE * read_file, char * data, int size);
-void read_stuff(FILE * read_file, char * stuff, int size);
+void write_header(FILE * write_file, void * data, int size);
+void write_data(FILE * write_file, void * data, int size);
+void write_stuff(FILE * write_file, void * data, int size);
+void read_header(FILE * read_file, void * data, int size);
+void read_data(FILE * read_file, void * data, int size);
+void read_stuff(FILE * read_file, void * stuff, int size);
 
 
 extern char NPCOSTRING[4] = {'N','P','C','O'};
 extern char NAMESTRING[4] = {'N', 'A', 'M', 'E'};
-extern char PLAYERSTRING[x] = {};
+extern char PLAYERSTRING[6] = {'p','l','a','y','e','r'};
 extern char NPCSTRING[4] = {'N','P','C','_'};
