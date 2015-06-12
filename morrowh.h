@@ -19,16 +19,16 @@ struct fdata {
 
 struct subrecordheaders{
     //linked list implementation
-    unsigned char * name;
+    unsigned char name[4];
     int size;
     unsigned char * data; // need to keep track of data
     srh * next; //next item in subrecord linked list
 }; //subrecord
 
 struct recordheaders{
-    unsigned char * name; //record name, ex NPC_
+    unsigned char name[4]; //record name, ex NPC_
     int size; //record size
-    unsigned char * misc; //other 2 headers, misc headers.
+    unsigned char misc[8]; //other 2 headers, misc headers.
     srh * subrecords; //linked list
     srh * last; //end of linked list
     srh * obloc; //object location more on comment underneith
@@ -38,23 +38,17 @@ struct recordheaders{
 
 //prototypes
 void remsrh(srh * subrecord, rhead * record);
-void addsrh(char * name, int size, char * data, rhead * record);
+void addsrh(unsigned char * name, int size, unsigned char * data, rhead * record);
 int isItem(srh * subrecord, fdata string);
 void swapItem(srh * subrecord, fdata string);
 rhead record_builder(FILE * read_file);
 int subrecord_builder(rhead * record, int * remsize, FILE * read_file);
 void rkiller(rhead* record, int remsize, FILE * read_file, FILE * write_file);
 void srkiller(rhead * record, FILE * write_file);
-int string_is_string(char * filestring, int size, fdata * itemstring);
-int isr(char * nam, fdata * rnam);
-int issr(char * nam, fdata * srnam);
+int string_is_string(unsigned char * filestring, int size, fdata * itemstring);
+int isr(unsigned char * nam, fdata * rnam);
+int issr(unsigned char * nam, fdata * srnam);
 void write_header(FILE * write_file, void * data, int size);
 void write_data(FILE * write_file, void * data, int size);
 void read_header(FILE * read_file, void * data, int size);
 void read_data(FILE * read_file, void * data, int size);
-
-
-extern char NPCOSTRING[4] = {'N','P','C','O'};
-extern char NAMESTRING[4] = {'N', 'A', 'M', 'E'};
-extern char PLAYERSTRING[6] = {'p','l','a','y','e','r'};
-extern char NPCSTRING[4] = {'N','P','C','_'};
