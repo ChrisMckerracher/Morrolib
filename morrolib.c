@@ -124,11 +124,11 @@ void rkiller(rhead* record, int remsize, FILE * read_file, FILE * write_file){
         //we'll just read and write the rest of the record as a big block;
         printf("test3\n");
         printf("%d",remsize);
-        char * bigblock = malloc(remsize);
+        char * bigblock;
         printf("test4\n");
-        read_data(read_file, bigblock, remsize);
+        bigblock = (char *) read_data(read_file, bigblock, remsize);
         write_data(write_file, bigblock, remsize);
-        free(bigblock);
+        printf("test5\n");
     }
 }
 
@@ -200,7 +200,7 @@ void write_header(FILE * write_file, void * data, int size){
 
 void write_data(FILE * write_file, void * data, int size){ 
     write_stuff(write_file, data, size);
-    
+   printf("test6\n"); 
     free(data);
 }
 
@@ -218,9 +218,10 @@ void read_header(FILE * read_file, void * data, int size){
     read_stuff(read_file, data, size);
 }
 
-void read_data(FILE * read_file, void * data, int size){
+void * read_data(FILE * read_file, void * data, int size){
     data = malloc(size);
     read_stuff(read_file, data, size);
+    return data;
 }
 
 static void read_stuff(FILE * read_file, void * stuff, int size){
