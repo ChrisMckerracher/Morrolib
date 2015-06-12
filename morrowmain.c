@@ -10,8 +10,7 @@ extern fdata player = {&c[0], 6};
 extern fdata NPCSTRING = {&d[0], 4};
 
 int main(){
-    //returns size of record if it is an NPC_, else it just returns 0
-    
+    //returns size of record if it is an NPC_, else it just returns 0 
     //-read header string, determine if it's NPCO_item
     //-if it is, find subheader NAME, find it's subrecord data length
     //-if this is equal to the itemstring's string length, compare with string_is_string 
@@ -24,6 +23,7 @@ int main(){
     unsigned char * new_data = &b[0];
     FILE * read_file = fopen("MWsave2003.ess", "rb");
     FILE * write_file = fopen("test.ess", "wb");
+    std:setbuf(write_file, NULL);
     rhead record;
     while(1){    
         record = record_builder(read_file);
