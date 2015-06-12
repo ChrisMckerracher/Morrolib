@@ -1,9 +1,8 @@
 #include "morrowh.h"
 
 //function prototypes
-static void read_stuff(FILE * read_file, char * stuff, int size);
-static void write_stuff(FILE * write_file, char * data, int size);
-
+static void read_stuff(FILE * read_file, void * stuff, int size);
+static void write_stuff(FILE * write_file, void * data, int size);
 //function definitions
 void remsrh(srh * subrecord, rhead * record){
     //removes subrecord from record, updates record size
@@ -17,7 +16,7 @@ void remsrh(srh * subrecord, rhead * record){
     
 }
 
-void addsrh(char * name, char * size, char * data, rhead * record){
+void addsrh(char * name, int size, char * data, rhead * record){
     //adds srh, updates record size
     
     srh * new_subr = malloc(sizeof(srh));
@@ -35,7 +34,7 @@ void addsrh(char * name, char * size, char * data, rhead * record){
     
     record->last->next = NULL;
     
-    rhead->size += size;
+    record->size += size;
 }
 
 int isItem(srh * subrecord, fdata string){
@@ -77,7 +76,7 @@ rhead record_builder(FILE * read_file){
     rhead record;
     
     read_header(read_file, record.name, 4);
-    read_header(read_file, record.size, 4);
+    read_header(read_file, &record.size, 4);
     read_header(read_file, record.misc, 8);
     record.subrecords = NULL;
     record.last = NULL;
@@ -101,21 +100,21 @@ int subrecord_builder(rhead * record, int * remsize, FILE * read_file){
         record->last = record->last->next;
     }
     read_header(read_file, record->last->name, 4);
-    read_header(read_file, record->last->size, 4);
-    read_data(read_file, record->last->data, SIZEEE);
+    read_header(read_file, &record->last->size, 4);
+    read_data(read_file, record->last->data, record->last->size);
     record->last->next = NULL;
     
-    *remsize -= SIZEEE + 8;
+    *remsize -= record->last->size + 8;
     
     return 0;
 }
 
-void rkiller(rhead* record, remsize, FILE * read_file, FILE * write_file){
+void rkiller(rhead* record, int remsize, FILE * read_file, FILE * write_file){
     //writes record
     write_header(write_file, record->name, 4);
-    write_header(write_file, record->name, 4);
-    write_header(write_file, record->name, 8);
-    srkiller(record);
+    write_header(write_file, &(record->size), 4);
+    write_header(write_file, record->misc, 8);
+    srkiller(record, write_file);
     
     if(remsize != 0){
         //we'll just read and write the rest of the record as a big block;
@@ -130,22 +129,23 @@ void srkiller(rhead * record, FILE * write_file){
     //writes all subrecords that have been read
     srh * next;
     
-    if(record->subrecord->last == NULL){
+    if(record->last == NULL){
+        return;
         //we're done;
     }
     
-    while(record->subrecord != record->last){
-        next = record->subrecord->next;
-        write_header(write_file, record->subrecord->name, 4);
-        write_header(write_file, record->subrecord->size, 4);
-        write_data(write_file, record->subrecord->data, SIZE);
-        free(record->subrecord);
-        record->subrecord = next;
+    while(record->subrecords != record->last){
+        next = record->subrecords->next;
+        write_header(write_file, record->subrecords->name, 4);
+        write_header(write_file, &(record->subrecords->size), 4);
+        write_data(write_file, record->subrecords->data, record->subrecords->size);
+        free(record->subrecords);
+        record->subrecords = next;
     }
     
     free(record->last);
     record->last = NULL;
-    record->subrecord = NULL;
+    record->subrecords = NULL;
     record->obloc = NULL;
 }
 
@@ -157,7 +157,7 @@ int string_is_string(char * filestring, int size, fdata * itemstring){
 
     if(size != itemstring->size){
         //sanity check to make sure no weird errors occur
-        perror(string_is_string got called at different string lengths)
+        perror("string_is_string got called at different string lengths");
         exit(1);
     }
     
@@ -176,7 +176,7 @@ int isr(char * nam, fdata * rnam){
     //is record
     //same naming convention is issr, rnam is record name
     
-    return string_is_string(name, 4, rnam);
+    return string_is_string(nam, 4, rnam);
 }
 
 int issr(char * nam, fdata * srnam){
@@ -184,20 +184,20 @@ int issr(char * nam, fdata * srnam){
     //nam is the subrecord type's name
     //srnam is the name youre seeing if your sr record has
     
-    return string_is_string(name, 4, srnam)
+    return string_is_string(nam, 4, srnam);
 }
 
 void write_header(FILE * write_file, void * data, int size){
     write_stuff(write_file, data, size);
 }
 
-void write_data(FILE * write_file, void * data, int size); 
+void write_data(FILE * write_file, void * data, int size){ 
     write_stuff(write_file, data, size);
     
     free(data);
 }
 
-void write_stuff(FILE * write_file, void * data, int size){
+static void write_stuff(FILE * write_file, void * data, int size){
     int success_checker = fwrite(data, 1, size, write_file);
     
     if (success_checker != size){
@@ -216,7 +216,7 @@ void read_data(FILE * read_file, void * data, int size){
     read_stuff(read_file, data, size);
 }
 
-void read_stuff(FILE * read_file, void * stuff, int size){
+static void read_stuff(FILE * read_file, void * stuff, int size){
     int read_size;
     
     read_size = fread(stuff, 1, size, read_file);
