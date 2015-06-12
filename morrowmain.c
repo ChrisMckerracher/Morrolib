@@ -2,11 +2,11 @@
 
 extern unsigned char a[4] = {'N','P','C','O'};
 extern unsigned char b[4] = {'N', 'A', 'M', 'E'};
-extern unsigned char c[6] = {'p','l','a','y','e','r'};
+extern unsigned char c[7] = {'p','l','a','y','e','r','\0'};
 extern unsigned char d[4] = {'N','P','C','_'};
 extern fdata NPCOSTRING = {&a[0], 4};
 extern fdata name = {&b[0], 4};
-extern fdata player = {&c[0], 6};
+extern fdata player = {&c[0], 7};
 extern fdata NPCSTRING = {&d[0], 4};
 
 int main(){
@@ -28,22 +28,25 @@ int main(){
     while(1){    
         record = record_builder(read_file);
         remaining_size = record.size;
-        if(isr(record.name, &NPCSTRING) == 1){
+        if(isr(record.name, &NPCSTRING) == 0){
             //not right header type
-            rkiller(&record, remaining_size, read_file, write_file);
-        } else{
+        
             //determine if NPC_ is the player record
-                if (string_is_string(record.last->data, 6, &player) == 0){
 
-            while(subrecord_builder(&record, &remaining_size, read_file) == 0){
-                    if(issr(record.last->name, &NPCOSTRING) == 0){
-                        //determine if item
-                        printf("test");
+            subrecord_builder(&record, &remaining_size, read_file);
+            if (string_is_string(record.last->data, 7, &player) == 0){
+
+                while(subrecord_builder(&record, &remaining_size, read_file) == 0){
+                    
+                        if(issr(record.last->name, &NPCOSTRING) == 0){
+                         //determine if item
+                         printf("a");
                     }
                 } //need to somehow pass remaining filesize
             //either if statement failing means this subrecord isn't right 
                 
-            }rkiller(&record, remaining_size, read_file, write_file);
+            }
         }
+        rkiller(&record, remaining_size, read_file, write_file);
     }
 }

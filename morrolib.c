@@ -91,7 +91,7 @@ rhead record_builder(FILE * read_file){
 int subrecord_builder(rhead * record, int * remsize, FILE * read_file){
     //1 means that the record cannot be bigger
     //remsize is remaining size before record is empty
-    if(remsize == 0){
+    if(*remsize == 0){
         return 1;
     }
 
@@ -104,10 +104,13 @@ int subrecord_builder(rhead * record, int * remsize, FILE * read_file){
     }
     read_header(read_file, record->last->name, 4);
     read_header(read_file, &record->last->size, 4);
-    read_data(read_file, record->last->data, record->last->size);
+    record->last->data = read_data(read_file, record->last->data, record->last->size);
     record->last->next = NULL;
     
-    *remsize -= record->last->size + 8;
+    *remsize -= record->last->size;
+    *remsize -= 8;
+    printf("%d\n", record->last->size);
+    printf("%d\n",remsize);
     
     return 0;
 }
@@ -116,19 +119,19 @@ void rkiller(rhead* record, int remsize, FILE * read_file, FILE * write_file){
     //writes record
     write_header(write_file, record->name, 4);
     write_header(write_file, &(record->size), 4);
-    printf("test1\n");
+    
     write_header(write_file, record->misc, 8);
     srkiller(record, write_file);
-    printf("test2\n");  
+      
     if(remsize != 0){
         //we'll just read and write the rest of the record as a big block;
-        printf("test3\n");
-        printf("%d",remsize);
+        
+        
         char * bigblock;
-        printf("test4\n");
+        
         bigblock = (char *) read_data(read_file, bigblock, remsize);
         write_data(write_file, bigblock, remsize);
-        printf("test5\n");
+        
     }
 }
 
@@ -141,7 +144,7 @@ void srkiller(rhead * record, FILE * write_file){
         //we're done;
     }
     
-    while(record->subrecords != record->last){
+    while(record->subrecords != NULL){
         next = record->subrecords->next;
         write_header(write_file, record->subrecords->name, 4);
         write_header(write_file, &(record->subrecords->size), 4);
@@ -150,7 +153,6 @@ void srkiller(rhead * record, FILE * write_file){
         record->subrecords = next;
     }
     
-    free(record->last);
     record->last = NULL;
     record->subrecords = NULL;
     record->obloc = NULL;
@@ -200,7 +202,7 @@ void write_header(FILE * write_file, void * data, int size){
 
 void write_data(FILE * write_file, void * data, int size){ 
     write_stuff(write_file, data, size);
-   printf("test6\n"); 
+    
     free(data);
 }
 
@@ -212,6 +214,7 @@ static void write_stuff(FILE * write_file, void * data, int size){
         exit(1);
     }
 }
+
 
 void read_header(FILE * read_file, void * data, int size){
     //since it's an array, it's already mallocd when mallocing whole subarray
@@ -228,7 +231,7 @@ static void read_stuff(FILE * read_file, void * stuff, int size){
     int read_size;
     
     read_size = fread(stuff, 1, size, read_file);
-    printf("%d\n",read_size); 
+     
     if(read_size != size){
         if (read_size != 0){
             perror("read error on read_stuff");
