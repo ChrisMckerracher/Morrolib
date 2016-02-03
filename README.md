@@ -1,2 +1,2 @@
-# Morrowind-Trader
-Allows transferring of items between save files
+# Morrolib
+A library of functions for modifying the contents of ESM and ESP files for Morrowind
